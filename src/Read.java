@@ -1,32 +1,47 @@
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Read {
- Status status;
+private  BufferedReader reader;
 
-    public Read(Status status) {
-        this.status = status;
+ private  int currentLine;
+ private final Lock lock;
+
+ public Read(String fileName)  {
+     this.currentLine = 0;
+     this.lock = new ReentrantLock();
+    try{
+        this.reader = new BufferedReader( new FileReader(fileName));
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+ }
+ public String[] readLines() {
+lock.lock();
+try{
+    try {
+        String l1 = reader.readLine();
+        String l2 = reader.readLine();
+        if(l1!=null && l2!=null){
+            return  new String[]{l1,l2};
+        }else {return null;}
+    }catch (IOException e){
+        e.printStackTrace();
+        return null;
+    }
+}finally {
+    lock.unlock();
+}
+ }
+
+    public int getCurrentLine() {
+        return currentLine;
     }
 
-    File file = new File("file.txt");
-    synchronized void readFile(){
-        try {
-
-            RandomAccessFile rf = new RandomAccessFile(file, "r");
-            rf.seek(status.getPozycja());
-            String strLine;
-            int i = 0;
-            while ((strLine = rf.readLine()) != null) {
-                System.out.println(strLine);
-                i++;
-                if(i==2){
-                    break;
-                }}
-            status.setPozycja(rf.getFilePointer());
-            rf.close();
-        } catch (IOException e) {
-            System.out.println("Błąd dostępu do pliku");
-        }
+    public void setCurrentLine(int currentLine) {
+        this.currentLine = currentLine;
     }
 }
